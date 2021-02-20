@@ -21,11 +21,17 @@ class FetchAgent:
 
 class FetchItem:
 
-    def __init__(self, related: 'List[FetchItem] or FetchItem' = None, xpath: str = '',
-                 name: str = ''):
+    def __init__(
+            self,
+            related: 'List[FetchItem] or FetchItem' = None,
+            xpath: str = '',
+            primary: bool = False,
+            name: str = ''
+    ):
         self.name = name
         self.xpath = xpath
         self.related = related if related else []
+        self.primary = primary
 
     def __iter__(self):
         yield self
@@ -33,4 +39,4 @@ class FetchItem:
             yield item
 
     def __str__(self):
-        return f'name: {self.name}, xpath: {self.xpath}, related: {self.related}'
+        return f'name: {self.name}, xpath: {self.xpath}, related: {self.related}, primary: {self.primary}'

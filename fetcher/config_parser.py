@@ -3,11 +3,12 @@ import yaml
 from fetcher.agents import FetchItem
 
 
-class ConfigParser:
-    fetch_base = dict()
+class FetcherConfigParser:
 
     def __init__(self, config_file=''):
         self.config_file = config_file
+        self.fetch_base = dict()
+        self.url = ''
 
     def get_related(self, related_names):
         related_refs = list()
@@ -20,6 +21,7 @@ class ConfigParser:
         return FetchItem(
             name=item_name,
             xpath=item_dict['xpath'],
+            primary=item_dict.get('primary', False),
             related=self.get_related(item_dict.get('related', []))
         )
 
@@ -32,20 +34,21 @@ class ConfigParser:
     def load(self):
         with open(self.config_file, 'r') as conf:
             conf_items = yaml.load(conf, Loader=yaml.FullLoader)
-
-        conf_items_dict = dict()
-        for item in conf_items:
-            conf_items_dict.update(item)
+            self.url = conf_items['url']
 
         # loading leaves first
         [
             self.load_item(self.fetch_base, item_name, item_dict)
-            for item_name, item_dict in conf_items_dict.items()
+            for item_name, item_dict in conf_items['items'].items()
             if not item_dict.get('related')
         ]
         # loading the rest
         [
             self.load_item(self.fetch_base, item_name, item_dict)
-            for item_name, item_dict in conf_items_dict.items()
+            for item_name, item_dict in conf_items['items'].items()
             if item_dict.get('related')
         ]
+
+    def get_primary(self):
+        self.load()
+        return [item for item in self.fetch_base.values() if item.primary]

@@ -1,5 +1,8 @@
+from argparse import ArgumentParser
+
 from daemon import FetchDaemon
 from fetcher.agents import FetchItem, FetchAgent
+from fetcher.config_parser import FetcherConfigParser
 from fetcher.serializing import JsonSerializer
 from fetcher.storing import MultipleSaveDriver, StdoutDriver, TextDriver
 
@@ -24,4 +27,38 @@ fd = FetchDaemon(
     interval=10
 )
 
-fd.start()
+# fd.start()
+
+if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument(
+        '--interval', '-i', type=int, default=600,
+        help='Interval between fetching'
+    )
+    parser.add_argument('--config', '-c', type=str, help='Path to YAML config', required=True)
+    parser.add_argument(
+        '--save_driver', '-s', type=str, nargs='+',
+        help="Choose how to save the data. You can use multiple drivers. 'stdout', 'text' are "
+             "available "
+    )
+    parser.add_argument(
+        '--text_output',
+        type=str,
+        help="Save data to this file if TextDriver was chosen"
+    )
+
+    args = parser.parse_args()
+
+    config = FetcherConfigParser(config_file=args.config)
+    fd = FetchDaemon(
+        agent=FetchAgent(
+            url=config.url,
+            fetch_items=config.get_primary()
+        ),
+        output_driver=MultipleSaveDriver(drivers=[
+            StdoutDriver(),
+            TextDriver(serializer=JsonSerializer, path='/tmp/fetcher.out')
+        ]),
+        interval=args.interval
+    )
+    fd.start()
