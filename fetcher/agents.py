@@ -1,4 +1,3 @@
-from typing import List
 from urllib import request
 
 import lxml.html as lh
@@ -22,12 +21,16 @@ class FetchAgent:
 
 class FetchItem:
 
-    def __init__(self, related: 'List[FetchItem] or FetchItem' = None, xpath: str = '', name: str = ''):
-        self.xpath = xpath
+    def __init__(self, related: 'List[FetchItem] or FetchItem' = None, xpath: str = '',
+                 name: str = ''):
         self.name = name
+        self.xpath = xpath
         self.related = related if related else []
 
     def __iter__(self):
         yield self
         for item in self.related:
             yield item
+
+    def __str__(self):
+        return f'name: {self.name}, xpath: {self.xpath}, related: {self.related}'
