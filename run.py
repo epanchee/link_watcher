@@ -6,28 +6,14 @@ from fetcher.config_parser import FetcherConfigParser
 from fetcher.serializing import JsonSerializer
 from fetcher.storing import MultipleSaveDriver, StdoutDriver, TextDriver
 
-floor = FetchItem(xpath='/html/body/div[2]/section/div[2]/div[2]/div[1]/div[1]/div[4]')
-flat1 = FetchItem(xpath='/html/body/div[2]/section/div[2]/div[2]/div[1]/div[2]/div/div[7]/div[4]',
-                  name='flat1', related=floor)
-floor = FetchItem(xpath='/html/body/div[2]/section/div[2]/div[2]/div[1]/div[1]/div[2]')
-flat2 = FetchItem(xpath='/html/body/div[2]/section/div[2]/div[2]/div[1]/div[2]/div/div[7]/div[2]',
-                  name='flat2', related=floor)
+driver2class = {
+    'stdout': StdoutDriver,
+    'text': TextDriver
+}
 
-atomstroy = FetchAgent(
-    url='https://www.atomstroy.net/zhilaya_nedvizhimost/art-gorod-park/ceny-i-nalichie',
-    fetch_items=[flat1, flat2]
-)
-
-fd = FetchDaemon(
-    agent=atomstroy,
-    output_driver=MultipleSaveDriver(drivers=[
-        StdoutDriver(),
-        TextDriver(serializer=JsonSerializer, path='/tmp/fetcher.out')
-    ]),
-    interval=10
-)
-
-# fd.start()
+serializer2class = {
+    'json': JsonSerializer
+}
 
 if __name__ == '__main__':
     parser = ArgumentParser()
@@ -42,12 +28,30 @@ if __name__ == '__main__':
              "available "
     )
     parser.add_argument(
+        '--serializer', '-d', type=str, choices=['json'],
+        help="Choose the serialization mechanism"
+    )
+    parser.add_argument(
         '--text_output',
         type=str,
-        help="Save data to this file if TextDriver was chosen"
+        help="Output file if TextDriver was chosen"
     )
 
     args = parser.parse_args()
+
+    output_driver = StdoutDriver()
+    kwargs = dict()     # TODO: remove this workaround
+    if args.text_output:
+        kwargs['path'] = args.text_output
+    if args.save_driver:
+        if len(args.save_driver) > 1:
+            output_driver = MultipleSaveDriver(
+                drivers=[driver2class[driver](**kwargs) for driver in args.save_driver]
+            )
+        else:
+            output_driver = driver2class[args.save_driver[0]](**kwargs)
+    if args.serializer:
+        output_driver.serializer = serializer2class[args.serializer]
 
     config = FetcherConfigParser(config_file=args.config)
     fd = FetchDaemon(
@@ -55,10 +59,7 @@ if __name__ == '__main__':
             url=config.url,
             fetch_items=config.get_primary()
         ),
-        output_driver=MultipleSaveDriver(drivers=[
-            StdoutDriver(),
-            TextDriver(serializer=JsonSerializer, path='/tmp/fetcher.out')
-        ]),
+        output_driver=output_driver,
         interval=args.interval
     )
     fd.start()
