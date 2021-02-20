@@ -9,6 +9,7 @@ class FetcherConfigParser:
         self.config_file = config_file
         self.fetch_base = dict()
         self.url = ''
+        self.load()
 
     def get_related(self, related_names):
         related_refs = list()
