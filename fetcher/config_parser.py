@@ -49,6 +49,3 @@ class ConfigParser:
             for item_name, item_dict in conf_items_dict.items()
             if item_dict.get('related')
         ]
-
-# for item in fetch_base.values():
-#     print(item)
