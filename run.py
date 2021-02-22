@@ -1,3 +1,4 @@
+import os
 from argparse import ArgumentParser
 
 from daemon import FetchDaemon
@@ -10,7 +11,10 @@ if __name__ == '__main__':
         '--interval', '-i', type=int, default=600,
         help='Interval between fetching'
     )
-    parser.add_argument('--config', '-c', type=str, help='Path to YAML config', required=True)
+    parser.add_argument(
+        '--config', '-c', type=str,
+        help='Path to YAML config file or directory. Default is "config/"', default='config'
+    )
     parser.add_argument(
         '--save_driver', '-s', type=str, nargs='+',
         help=f"Choose how to save the data. You can use multiple drivers. "
@@ -23,7 +27,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--text_output',
         type=str,
-        help="Output file if TextDriver was chosen"
+        help="Output file if TextDriver was chosen",
+        default=f"/tmp/fetch_agent.out.{os.getpid()}"
     )
 
     args = parser.parse_args()
@@ -39,12 +44,12 @@ if __name__ == '__main__':
         else:
             output_driver = driver2class[args.save_driver[0]](**kwargs)
     else:
-        output_driver = driver2class['text']()
+        output_driver = driver2class['stdout']()
     if args.serializer:
         output_driver.serializer = serializer2class[args.serializer]
 
     fd = FetchDaemon(
-        config=args.config,
+        conf_path=args.config,
         output_driver=output_driver,
         interval=args.interval
     )

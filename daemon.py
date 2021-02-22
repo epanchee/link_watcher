@@ -1,4 +1,6 @@
 import logging
+import os
+from glob import glob
 from time import sleep
 
 from fetcher.agents import FetchAgent
@@ -6,19 +8,28 @@ from fetcher.config_parser import FetcherConfigParser
 from fetcher.storing import SaveDriver
 
 
+def list_configs(conf_path):
+    return [conf_path] if os.path.isfile(conf_path) else glob(f"{conf_path}/*.yaml")
+
+
 class FetchDaemon:
 
     def __init__(
             self,
-            config: str = '',
+            conf_path: str = '',
             output_driver: SaveDriver = None,
             interval: int = 600
     ):
-        self.config = FetcherConfigParser(config_file=config)
-        self.agent = FetchAgent(
-            url=self.config.url,
-            fetch_items=self.config.get_primary()
-        )
+        self.configs = [
+            FetcherConfigParser(config_file=config) for config in list_configs(conf_path)
+        ]
+        self.agents = [
+            FetchAgent(
+                url=config.url,
+                fetch_items=config.get_primary()
+            )
+            for config in self.configs
+        ]
         self.output_driver = output_driver
         self.interval = interval
         self.logger = logging.getLogger(__name__)
@@ -29,9 +40,10 @@ class FetchDaemon:
         self.logger.info(f'Fetching daemon started. Interval: {self.interval} sec')
         while True:
             try:
-                for data in self.agent.fetch():
-                    self.output_driver.push(data)
-                self.logger.info('Fetching done')
+                for agent in self.agents:
+                    for data in agent.fetch():
+                        self.output_driver.push(data)
+                    self.logger.info('Fetching done')
                 sleep(self.interval)
             except (KeyboardInterrupt, SystemExit):
                 self.logger.info('Stopping fetching daemon ...')
