@@ -1,8 +1,6 @@
 from argparse import ArgumentParser
 
 from daemon import FetchDaemon
-from fetcher.agents import FetchAgent
-from fetcher.config_parser import FetcherConfigParser
 from fetcher.serializing import serializer2class
 from fetcher.storing import MultipleSaveDriver, driver2class
 
@@ -45,12 +43,8 @@ if __name__ == '__main__':
     if args.serializer:
         output_driver.serializer = serializer2class[args.serializer]
 
-    config = FetcherConfigParser(config_file=args.config)
     fd = FetchDaemon(
-        agent=FetchAgent(
-            url=config.url,
-            fetch_items=config.get_primary()
-        ),
+        config=args.config,
         output_driver=output_driver,
         interval=args.interval
     )

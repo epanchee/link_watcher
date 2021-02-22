@@ -2,6 +2,7 @@ import logging
 from time import sleep
 
 from fetcher.agents import FetchAgent
+from fetcher.config_parser import FetcherConfigParser
 from fetcher.storing import SaveDriver
 
 
@@ -9,11 +10,15 @@ class FetchDaemon:
 
     def __init__(
             self,
-            agent: FetchAgent = None,
+            config: str = '',
             output_driver: SaveDriver = None,
             interval: int = 600
     ):
-        self.agent = agent
+        self.config = FetcherConfigParser(config_file=config)
+        self.agent = FetchAgent(
+            url=self.config.url,
+            fetch_items=self.config.get_primary()
+        )
         self.output_driver = output_driver
         self.interval = interval
         self.logger = logging.getLogger(__name__)
