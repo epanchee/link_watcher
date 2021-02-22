@@ -72,15 +72,15 @@ class FetchItem(BaseFetchItem):
 
 class ClassFetchItem(BaseFetchItem):
     """
-    FetchItem to check whether DOM-element has class from given set self.params['classes'] or not
+    FetchItem to check whether DOM-element has class from given list self.params['classes'] or not
     """
 
     def seek(self, tree):
         return tree.xpath(self.xpath)[0].classes
 
     def check_inside(self, data):
-        params = self.params.get('classes', set())
-        return data in self.params['classes'] if isinstance(params, set) else False
+        params = self.params.get('classes', list())
+        return data in self.params['classes'] if isinstance(params, list) else False
 
     def process(self, data):
         return self.name if self.check_inside(data) else ''
