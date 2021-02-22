@@ -20,15 +20,15 @@ class FetchDaemon:
             output_driver: SaveDriver = None,
             interval: int = 600
     ):
-        self.configs = [
-            FetcherConfigParser(config_file=config) for config in list_configs(conf_path)
+        configs = [
+            FetcherConfigParser(config_path=config) for config in list_configs(conf_path)
         ]
         self.agents = [
             FetchAgent(
-                url=config.url,
+                config=config,
                 fetch_items=config.get_primary()
             )
-            for config in self.configs
+            for config in configs
         ]
         self.output_driver = output_driver
         self.interval = interval
@@ -41,6 +41,7 @@ class FetchDaemon:
         while True:
             try:
                 for agent in self.agents:
+                    self.logger.info(f'Started fetching {agent.config.config_path}')
                     for data in agent.fetch():
                         self.output_driver.push(data)
                     self.logger.info('Fetching done')

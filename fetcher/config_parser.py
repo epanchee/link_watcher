@@ -5,8 +5,8 @@ from fetcher.agents import FetchItem, ClassFetchItem
 
 class FetcherConfigParser:
 
-    def __init__(self, config_file=''):
-        self.config_file = config_file
+    def __init__(self, config_path=''):
+        self.config_path = config_path
         self.fetch_base = dict()
         self.url = ''
         self.load()
@@ -44,7 +44,7 @@ class FetcherConfigParser:
             print(e)
 
     def load(self):
-        with open(self.config_file, 'r') as conf:
+        with open(self.config_path, 'r') as conf:
             conf_items = yaml.load(conf, Loader=yaml.FullLoader)
             self.url = conf_items['url']
 

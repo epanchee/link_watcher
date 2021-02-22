@@ -8,11 +8,11 @@ import lxml.html as lh
 class FetchAgent:
 
     def __init__(self, **kwargs):
-        self.url = kwargs.get('url', '')
+        self.config = kwargs['config']
         self.fetch_items = kwargs.get('fetch_items', [])
 
     def fetch(self):
-        x = request.urlopen(self.url)
+        x = request.urlopen(self.config.url)
         tree = lh.parse(x)
         for fetch_item in self.fetch_items:
             fetched_group = []

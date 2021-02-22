@@ -13,9 +13,12 @@ class SaveDriver(metaclass=ABCMeta):
         logging.basicConfig(format='%(asctime)s %(message)s')
 
     def push(self, data):
-        if getattr(self, 'serializer', None):
-            data = self.serializer.serialize(data)
-        self.ppush(data)
+        try:
+            if getattr(self, 'serializer', None):
+                data = self.serializer.serialize(data)
+            self.ppush(data)
+        except Exception as e:
+            self.logger.error(e)
         self.logger.debug(f"Saved data {data} using {self.__class__}")
 
     @abstractmethod
