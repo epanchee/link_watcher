@@ -15,7 +15,7 @@ class FetchAgent:
         for fetch_item in self.fetch_items:
             fetched_group = []
             for item in fetch_item:
-                fetched_group.extend(tree.xpath(item.xpath)[0].itertext())
+                fetched_group.extend(item.seek(tree))
             yield fetch_item.name, fetched_group
 
 
@@ -32,6 +32,9 @@ class FetchItem:
         self.xpath = xpath
         self.related = related if related else []
         self.primary = primary
+
+    def seek(self, tree):
+        return tree.xpath(self.xpath)[0].itertext()
 
     def __iter__(self):
         yield self
