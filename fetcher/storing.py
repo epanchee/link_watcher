@@ -64,3 +64,9 @@ class MultipleSaveDriver(SaveDriver):
     def close_output(self):
         for driver in self.drivers:
             driver.close_output()
+
+
+driver2class = {
+    'stdout': StdoutDriver,
+    'text': TextDriver
+}

@@ -1,19 +1,10 @@
 from argparse import ArgumentParser
 
 from daemon import FetchDaemon
-from fetcher.agents import FetchItem, FetchAgent
+from fetcher.agents import FetchAgent
 from fetcher.config_parser import FetcherConfigParser
-from fetcher.serializing import JsonSerializer
-from fetcher.storing import MultipleSaveDriver, StdoutDriver, TextDriver
-
-driver2class = {
-    'stdout': StdoutDriver,
-    'text': TextDriver
-}
-
-serializer2class = {
-    'json': JsonSerializer
-}
+from fetcher.serializing import serializer2class
+from fetcher.storing import MultipleSaveDriver, driver2class
 
 if __name__ == '__main__':
     parser = ArgumentParser()
@@ -24,12 +15,12 @@ if __name__ == '__main__':
     parser.add_argument('--config', '-c', type=str, help='Path to YAML config', required=True)
     parser.add_argument(
         '--save_driver', '-s', type=str, nargs='+',
-        help="Choose how to save the data. You can use multiple drivers. 'stdout', 'text' are "
-             "available "
+        help=f"Choose how to save the data. You can use multiple drivers. "
+             f"{list(driver2class.keys())} are available"
     )
     parser.add_argument(
-        '--serializer', '-d', type=str, choices=['json'],
-        help="Choose the serialization mechanism"
+        '--serializer', '-d', type=str, choices=list(serializer2class.keys()),
+        help=f"Choose the serialization mechanism. {list(serializer2class.keys())} are available "
     )
     parser.add_argument(
         '--text_output',
@@ -39,8 +30,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    output_driver = StdoutDriver()
-    kwargs = dict()     # TODO: remove this workaround
+    kwargs = dict()  # TODO: remove this workaround
     if args.text_output:
         kwargs['path'] = args.text_output
     if args.save_driver:
@@ -50,6 +40,8 @@ if __name__ == '__main__':
             )
         else:
             output_driver = driver2class[args.save_driver[0]](**kwargs)
+    else:
+        output_driver = driver2class['text']()
     if args.serializer:
         output_driver.serializer = serializer2class[args.serializer]
 
