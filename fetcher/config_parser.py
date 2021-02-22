@@ -1,6 +1,6 @@
 import yaml
 
-from fetcher.agents import FetchItem
+from fetcher.agents import FetchItem, ClassFetchItem
 
 
 class FetcherConfigParser:
@@ -19,6 +19,17 @@ class FetcherConfigParser:
         return related_refs
 
     def parse_item(self, item_name, item_dict):
+        # TODO: clean up this dirty code
+        item_type = item_dict.get('type', 'content')
+        if item_type == 'class':
+            return ClassFetchItem(
+                name=item_name,
+                xpath=item_dict['xpath'],
+                primary=item_dict.get('primary', False),
+                related=self.get_related(item_dict.get('related', [])),
+                item_type=item_dict.get('type', 'content'),
+                params=item_dict.get('params', dict())
+            )
         return FetchItem(
             name=item_name,
             xpath=item_dict['xpath'],

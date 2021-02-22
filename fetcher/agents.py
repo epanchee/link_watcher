@@ -1,3 +1,4 @@
+import builtins
 from abc import ABCMeta, abstractmethod
 from urllib import request
 
@@ -76,11 +77,18 @@ class ClassFetchItem(BaseFetchItem):
     """
 
     def seek(self, tree):
-        return tree.xpath(self.xpath)[0].classes
+        return list(tree.xpath(self.xpath)[0].classes)
 
     def check_inside(self, data):
+        result = False
+        condition = getattr(builtins, self.params.get('condition', 'any'))
         params = self.params.get('classes', list())
-        return data in self.params['classes'] if isinstance(params, list) else False
+        if isinstance(params, list):
+            result = condition([
+                data_item in self.params['classes']
+                for data_item in data
+            ])
+        return result
 
     def process(self, data):
         return self.name if self.check_inside(data) else ''
