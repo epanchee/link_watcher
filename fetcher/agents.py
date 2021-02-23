@@ -23,14 +23,18 @@ class FetchAgent:
         self.fetch_timeout = kwargs.get('fetch_timeout', 3)
 
     def fetch(self):
-        req = request.Request(self.config.url, headers=gen_req_headers())
-        x = request.urlopen(req, timeout=self.fetch_timeout)
-        tree = lh.parse(x)
-        for fetch_item in self.fetch_items:
-            fetched_group = []
-            for item in fetch_item:
-                fetched_group.extend(item.seek_n_procces(tree))
-            yield fetch_item.name, fetched_group
+        try:
+            req = request.Request(self.config.url, headers=gen_req_headers())
+            x = request.urlopen(req, timeout=self.fetch_timeout)
+            tree = lh.parse(x)
+            for fetch_item in self.fetch_items:
+                fetched_group = []
+                for item in fetch_item:
+                    fetched_group.extend(item.seek_n_procces(tree))
+                yield fetch_item.name, fetched_group
+        except Exception as e:
+            print(e)
+            yield None
 
 
 class BaseFetchItem(metaclass=ABCMeta):
