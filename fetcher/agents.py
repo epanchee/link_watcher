@@ -10,7 +10,7 @@ def gen_req_headers():
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'ru,en;q=0.9,zh;q=0.8,nl;q=0.7,es;q=0.6',
-        'Accept-Encoding': 'deflate',
+        # 'Accept-Encoding': 'deflate',
         'Connection': 'keep-alive'
     }
 
@@ -23,18 +23,18 @@ class FetchAgent:
         self.fetch_timeout = kwargs.get('fetch_timeout', 3)
 
     def fetch(self):
-        try:
-            req = request.Request(self.config.url, headers=gen_req_headers())
-            x = request.urlopen(req, timeout=self.fetch_timeout)
-            tree = lh.parse(x)
-            for fetch_item in self.fetch_items:
-                fetched_group = []
-                for item in fetch_item:
+        req = request.Request(self.config.url, headers=gen_req_headers())
+        x = request.urlopen(req, timeout=self.fetch_timeout)
+        tree = lh.parse(x)
+        for fetch_item in self.fetch_items:
+            fetched_group = []
+            for item in fetch_item:
+                try:
                     fetched_group.extend(item.seek_n_procces(tree))
-                yield fetch_item.name, fetched_group
-        except Exception as e:
-            print(e)
-            yield None
+                    yield fetch_item.name, fetched_group
+                except Exception as e:
+                    print(e)
+                    yield None
 
 
 class BaseFetchItem(metaclass=ABCMeta):
