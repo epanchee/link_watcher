@@ -1,6 +1,21 @@
+import os
+from glob import glob
+
 import yaml
 
 from fetcher.agents import FetchItem, ClassFetchItem
+
+
+class NoConfigException(Exception):
+    pass
+
+
+def list_configs(conf_path):
+    conf_list = [conf_path] if os.path.isfile(conf_path) else glob(f"{conf_path}/*.yaml")
+    if conf_list:
+        return conf_list
+    else:
+        raise NoConfigException(f"No configs found at {conf_path}")
 
 
 class FetcherConfigParser:
@@ -38,10 +53,7 @@ class FetcherConfigParser:
         )
 
     def load_item(self, item_list, item_name, item_dict):
-        try:
-            item_list[item_name] = self.parse_item(item_name, item_dict)
-        except Exception as e:
-            print(e)
+        item_list[item_name] = self.parse_item(item_name, item_dict)
 
     def load(self):
         with open(self.config_path, 'r') as conf:
@@ -62,5 +74,4 @@ class FetcherConfigParser:
         ]
 
     def get_primary(self):
-        self.load()
         return [item for item in self.fetch_base.values() if item.primary]

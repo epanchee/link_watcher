@@ -1,15 +1,9 @@
 import logging
-import os
-from glob import glob
 from time import sleep
 
 from fetcher.agents import FetchAgent
-from fetcher.config_parser import FetcherConfigParser
+from fetcher.config_parser import FetcherConfigParser, list_configs
 from fetcher.storing import SaveDriver
-
-
-def list_configs(conf_path):
-    return [conf_path] if os.path.isfile(conf_path) else glob(f"{conf_path}/*.yaml")
 
 
 class FetchDaemon:
@@ -41,10 +35,11 @@ class FetchDaemon:
         while True:
             try:
                 for agent in self.agents:
-                    self.logger.info(f'Started fetching {agent.config.config_path}')
+                    self.logger.debug(f'Started fetching {agent.config.config_path}')
                     for data in agent.fetch():
                         self.output_driver.push(data)
-                    self.logger.info('Fetching done')
+                    self.logger.debug('Fetching done')
+                self.logger.info(f'Waiting for {self.interval} sec to start a new cycle')
                 sleep(self.interval)
             except (KeyboardInterrupt, SystemExit):
                 self.logger.info('Stopping fetching daemon ...')
