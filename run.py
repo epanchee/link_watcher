@@ -23,7 +23,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--serializer', '-d', type=str, choices=list(serializer2class.keys()),
-        help=f"Choose the serialization mechanism. {list(serializer2class.keys())} are available "
+        help=f"Choose the serialization mechanism."
     )
     parser.add_argument(
         '--text_output',
