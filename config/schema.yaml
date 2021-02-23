@@ -1,44 +1,43 @@
-url: !!str # required
-items: # default: []. List of objects to be fetched
-  item_name: # used as pointer in item_name['related'] list
-      xpath: !!str # required
-      primary: !!bool [ 'yes', 'no' ] # default: no
-      type: !!str [ 'content', 'class' ] # default: 'content'. 'content' - retrieves raw text from DOM-element. 'class' - retrieves classes.
-      params: # default: {}. 'content' type does not need params.
-        classes: # default: []. List of classes to be matched with.
-          - !!str
-          ...
-        condition: !!str [ 'all', 'any' ] # default: 'any'. If any|all of classes matches.
-      related: # default []. Defines list of related objects which will be retrieved and serialized as one record.
-        - item1
-        - item2
-  item1:
-    ...
-  item2:
-    ...
+---
+url: 'https://www.lipsum.com/feed/html'
+items:
+  title:
+      xpath: '/html/body/div/div[2]/h1'
+      primary: yes
+      related:
+        - content_class
+        - info
+  content_class:
+      xpath: '/html/body/div/div[2]/div[2]/div[3]'
+      type: 'class'
+      params:
+        classes:
+          - 'boxed'
+        condition: 'all'
+  info:
+      xpath: '/html/body/div/div[2]/div[2]/div[3]/div[2]'
+  first_paragraph:
+      xpath: '/html/body/div/div[2]/div[2]/div[3]/div[1]/p[1]'
+      primary: yes
 
-  ...
-
-
-### EXAMPLE
-
-#url: 'https://www.lipsum.com/feed/html'
-#items:
-#  title:
-#      xpath: '/html/body/div/div[2]/h1'
-#      primary: yes
-#      related:
-#        - content_class
-#        - info
-#  content_class:
-#      xpath: '/html/body/div/div[2]/div[2]/div[3]'
-#      type: 'class'
-#      params:
-#        classes:
-#          - 'boxed'
-#        condition: 'all'
-#  info:
-#      xpath: '/html/body/div/div[2]/div[2]/div[3]/div[2]'
-#  first_paragraph:
-#      xpath: '/html/body/div/div[2]/div[2]/div[3]/div[1]/p[1]'
-#      primary: yes
+### SCHEMA
+#  url: !!str # required
+#  items: # default: []. List of objects to be fetched
+#    item_name: # used as pointer in item_name['related'] list
+#        xpath: !!str # required
+#        primary: !!bool [ 'yes', 'no' ] # default: no
+#        type: !!str [ 'content', 'class' ] # default: 'content'. 'content' - retrieves raw text from DOM-element. 'class' - retrieves classes.
+#        params: # default: {}. 'content' type does not need params.
+#          classes: # default: []. List of classes to be matched with.
+#            - !!str
+#            ...
+#          condition: !!str [ 'all', 'any' ] # default: 'any'. If any|all of classes matches.
+#        related: # default []. Defines list of related objects which will be retrieved and serialized as one record.
+#          - item1
+#          - item2
+#    item1:
+#      ...
+#    item2:
+#      ...
+#
+#    ...
