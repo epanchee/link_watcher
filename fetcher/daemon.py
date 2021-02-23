@@ -12,7 +12,8 @@ class FetchDaemon:
             self,
             conf_path: str = '',
             output_driver: SaveDriver = None,
-            interval: int = 600
+            interval: int = 600,
+            debug: bool = False
     ):
         configs = [
             FetcherConfigParser(config_path=config) for config in list_configs(conf_path)
@@ -27,7 +28,7 @@ class FetchDaemon:
         self.output_driver = output_driver
         self.interval = interval
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG if debug else logging.INFO)
         logging.basicConfig(format='%(asctime)s %(message)s')
 
     def start(self):
@@ -39,11 +40,11 @@ class FetchDaemon:
                     for data in agent.fetch():
                         self.output_driver.push(data)
                     self.logger.debug('Fetching done')
-                self.logger.info(f'Waiting for {self.interval} sec to start a new cycle')
-                sleep(self.interval)
             except (KeyboardInterrupt, SystemExit):
                 self.logger.info('Stopping fetching daemon ...')
                 self.output_driver.close_output()
                 break
             except Exception as e:
                 self.logger.exception(e)
+            self.logger.info(f'Waiting for {self.interval} sec to start a new cycle')
+            sleep(self.interval)
