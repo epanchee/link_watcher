@@ -31,10 +31,10 @@ class FetchAgent:
             for item in fetch_item:
                 try:
                     fetched_group.extend(item.seek_n_procces(tree))
-                    yield fetch_item.name, fetched_group
                 except Exception as e:
                     print(e)
-                    yield None
+            if fetched_group:
+                yield fetch_item.name, fetched_group
 
 
 class BaseFetchItem(metaclass=ABCMeta):
