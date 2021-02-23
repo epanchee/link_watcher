@@ -1,6 +1,8 @@
 import os
 from argparse import ArgumentParser
 
+import yaml
+
 from fetcher.daemon import FetchDaemon
 from fetcher.serializing import serializer2class
 from fetcher.storing import MultipleSaveDriver, driver2class
@@ -38,6 +40,11 @@ if __name__ == '__main__':
     kwargs['debug'] = args.debug
     if args.text_output:
         kwargs['path'] = args.text_output
+    if 'telegram' in args.save_driver or 'telegram' == args.save_driver:
+        with open('tg_conf.yaml', 'r') as tg_conf_file:
+            tg_conf = yaml.load(tg_conf_file, Loader=yaml.FullLoader)
+            kwargs['api_token'], kwargs['chat_id'] = \
+                tg_conf.get('api_token', ''), tg_conf.get('chat_id', '')
     if args.save_driver:
         if len(args.save_driver) > 1:
             output_driver = MultipleSaveDriver(
@@ -54,6 +61,7 @@ if __name__ == '__main__':
     fd = FetchDaemon(
         conf_path=args.config,
         output_driver=output_driver,
-        interval=args.interval
+        interval=args.interval,
+        debug=args.debug
     )
     fd.start()
