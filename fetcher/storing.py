@@ -17,7 +17,8 @@ class SaveDriver(metaclass=ABCMeta):
         try:
             if getattr(self, 'serializer', None):
                 data = self.serializer.serialize(data)
-            self.ppush(data)
+            if data:
+                self.ppush(data)
         except Exception as e:
             self.logger.error(e)
         self.logger.debug(f"Saved data {data} using {self.__class__}")

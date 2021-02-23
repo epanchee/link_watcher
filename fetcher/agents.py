@@ -9,8 +9,8 @@ def gen_req_headers():
     return {
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'ru-RU,ru;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'ru,en;q=0.9,zh;q=0.8,nl;q=0.7,es;q=0.6',
+        'Accept-Encoding': 'deflate',
         'Connection': 'keep-alive'
     }
 
