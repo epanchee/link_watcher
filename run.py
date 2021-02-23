@@ -1,7 +1,7 @@
 import os
 from argparse import ArgumentParser
 
-from daemon import FetchDaemon
+from fetcher.daemon import FetchDaemon
 from fetcher.serializing import serializer2class
 from fetcher.storing import MultipleSaveDriver, driver2class
 
