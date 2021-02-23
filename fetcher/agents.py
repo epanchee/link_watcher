@@ -1,15 +1,12 @@
 import builtins
-import ssl
 from abc import ABCMeta, abstractmethod
 from urllib import request
 
 import lxml.html as lh
-from fake_useragent import UserAgent
 
 
 def gen_req_headers():
     return {
-        # 'User-Agent': UserAgent().random,
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'ru-RU,ru;q=0.9',

@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 lxml = "*"
 pyyaml = "*"
-fake-useragent = "*"
 
 [dev-packages]
 
