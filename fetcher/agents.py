@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 from urllib import request
 
 import lxml.html as lh
+from fake_useragent import UserAgent
 
 
 class FetchAgent:
@@ -12,7 +13,8 @@ class FetchAgent:
         self.fetch_items = kwargs.get('fetch_items', [])
 
     def fetch(self):
-        x = request.urlopen(self.config.url)
+        req = request.Request(self.config.url, headers={'User-Agent': UserAgent().random})
+        x = request.urlopen(req)
         tree = lh.parse(x)
         for fetch_item in self.fetch_items:
             fetched_group = []
@@ -91,4 +93,4 @@ class ClassFetchItem(BaseFetchItem):
         return result
 
     def process(self, data):
-        return self.name if self.check_inside(data) else ''
+        return [self.name if self.check_inside(data) else '']
