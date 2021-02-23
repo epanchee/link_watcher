@@ -1,4 +1,5 @@
 import builtins
+import ssl
 from abc import ABCMeta, abstractmethod
 from urllib import request
 
@@ -6,15 +7,27 @@ import lxml.html as lh
 from fake_useragent import UserAgent
 
 
+def gen_req_headers():
+    return {
+        # 'User-Agent': UserAgent().random,
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'ru-RU,ru;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive'
+    }
+
+
 class FetchAgent:
 
     def __init__(self, **kwargs):
         self.config = kwargs['config']
         self.fetch_items = kwargs.get('fetch_items', [])
+        self.fetch_timeout = kwargs.get('fetch_timeout', 3)
 
     def fetch(self):
-        req = request.Request(self.config.url, headers={'User-Agent': UserAgent().random})
-        x = request.urlopen(req)
+        req = request.Request(self.config.url, headers=gen_req_headers())
+        x = request.urlopen(req, timeout=self.fetch_timeout)
         tree = lh.parse(x)
         for fetch_item in self.fetch_items:
             fetched_group = []
