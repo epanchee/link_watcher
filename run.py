@@ -40,7 +40,7 @@ if __name__ == '__main__':
     kwargs['debug'] = args.debug
     if args.text_output:
         kwargs['path'] = args.text_output
-    if 'telegram' in args.save_driver or 'telegram' == args.save_driver:
+    if args.save_driver and ('telegram' in args.save_driver or 'telegram' == args.save_driver):
         with open('tg_conf.yaml', 'r') as tg_conf_file:
             tg_conf = yaml.load(tg_conf_file, Loader=yaml.FullLoader)
             kwargs['api_token'], kwargs['chat_id'] = \
