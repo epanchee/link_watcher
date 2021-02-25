@@ -21,7 +21,8 @@ class FetchDaemon:
         self.agents = [
             FetchAgent(
                 config=config,
-                fetch_items=config.get_primary()
+                fetch_items=config.get_primary(),
+                debug=debug
             )
             for config in configs
         ]

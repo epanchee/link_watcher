@@ -1,4 +1,5 @@
 import builtins
+import logging
 from abc import ABCMeta, abstractmethod
 
 import lxml.html as lh
@@ -21,17 +22,22 @@ class FetchAgent:
         self.config = kwargs['config']
         self.fetch_items = kwargs.get('fetch_items', [])
         self.fetch_timeout = kwargs.get('fetch_timeout', 3)
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG if kwargs.get('debug', False) else logging.INFO)
+        logging.basicConfig(format='%(asctime)s %(message)s')
 
     def fetch(self):
         response = requests.get(self.config.url, timeout=self.fetch_timeout, headers=gen_req_headers())
         tree = lh.fromstring(response.text)
+        self.logger.debug(f"Scraping {self.config.url}")
         for fetch_item in self.fetch_items:
             fetched_group = []
             for item in fetch_item:
                 try:
                     fetched_group.extend(item.seek_n_procces(tree))
+                    self.logger.debug(f"Fetched {item.name}")
                 except Exception as e:
-                    print(e)
+                    self.logger.error(e)
             if fetched_group:
                 yield fetch_item.name, fetched_group
 
