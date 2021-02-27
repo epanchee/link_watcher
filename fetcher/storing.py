@@ -1,7 +1,8 @@
 import logging
 from abc import abstractmethod, ABCMeta
 from typing import List
-from urllib import request
+
+import requests
 
 
 class SaveDriver(metaclass=ABCMeta):
@@ -81,16 +82,14 @@ class TelegramSaveDriver(SaveDriver):
 
     def __init__(self, api_token: str = '', chat_id='', **kwargs):
         super().__init__(**kwargs)
-        self.send_url = "https://api.telegram.org/bot{api_token}/sendMessage?chat_id={chat_id}"\
-            "&parse_mode=html&text={{message}}".format(
-                api_token=api_token, chat_id=chat_id
-            )
+        self.send_url = f"https://api.telegram.org/bot{api_token}/sendMessage?chat_id={chat_id}\
+        &parse_mode=html&text={{message}}"
 
     def close_output(self):
         pass
 
     def ppush(self, data):
-        request.urlopen(url=self.send_url.format(message=data), timeout=1)
+        requests.get(url=self.send_url.format(message=data), timeout=1)
 
 
 driver2class = {
