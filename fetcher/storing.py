@@ -2,6 +2,7 @@ import logging
 from abc import abstractmethod, ABCMeta
 from typing import List
 
+import psycopg2
 import requests
 
 
@@ -12,7 +13,7 @@ class SaveDriver(metaclass=ABCMeta):
         self.serializer = kwargs.get('serializer', None)
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(logging.DEBUG if kwargs.get('debug', False) else logging.INFO)
-        logging.basicConfig(format='%(asctime)s %(message)s')
+        logging.basicConfig(format='%(name)s: %(asctime)s %(message)s')
 
     def push(self, data):
         try:
@@ -92,8 +93,37 @@ class TelegramSaveDriver(SaveDriver):
         requests.get(url=self.send_url.format(message=data), timeout=1)
 
 
+class PostgresSaveDriver(SaveDriver):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.con = psycopg2.connect(database="postgres", user="postgres", password="",
+                                    host="127.0.0.1", port="5432")
+        self.cur = self.con.cursor()
+        try:
+            self.cur.execute('''CREATE TABLE fetched
+                  (
+                      id SERIAL PRIMARY KEY,
+                      data VARCHAR(1024)  NOT NULL,
+                      ts TIMESTAMP DEFAULT NOW()
+                  );''')
+            self.con.commit()
+            self.logger.info("Table created successfully")
+        except Exception:
+            pass
+
+    def close_output(self):
+        self.con.close()
+
+    def ppush(self, data):
+        self.cur.execute(f"INSERT INTO fetched (data) VALUES (%s);", [data])
+        self.con.commit()
+
+
 driver2class = {
     'stdout': StdoutDriver,
     'text': TextDriver,
-    'telegram': TelegramSaveDriver
+    'telegram': TelegramSaveDriver,
+    'postgres': PostgresSaveDriver
 }
