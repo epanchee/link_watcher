@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  docker_db:
+    image: postgres:9.6.21-alpine
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  daemon:
+    build: .
+    entrypoint: ['python', 'run.py']
+    command: -c config/schema.yaml
+    volumes:
+      - .:/code
+    depends_on:
+      - docker_db
