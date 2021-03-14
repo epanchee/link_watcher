@@ -1,5 +1,6 @@
 import logging
 from abc import abstractmethod, ABCMeta
+from time import sleep
 from typing import List
 
 import psycopg2
@@ -98,8 +99,9 @@ class PostgresSaveDriver(SaveDriver):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.con = psycopg2.connect(database="postgres", user="postgres", password="",
-                                    host="127.0.0.1", port="5432")
+        self.con = self.try_to_connect()
+        if not self.con:
+            return
         self.cur = self.con.cursor()
         try:
             self.cur.execute('''CREATE TABLE fetched
@@ -113,12 +115,26 @@ class PostgresSaveDriver(SaveDriver):
         except Exception:
             pass
 
+    def try_to_connect(self):
+        con = None
+        for _ in range(5):
+            try:
+                con = psycopg2.connect(database="postgres", user="postgres", password="postgres",
+                                       host='docker_db' or "127.0.0.1", port="5432")
+                break
+            except Exception as e:
+                self.logger.error(e)
+                sleep(3)
+        return con
+
     def close_output(self):
-        self.con.close()
+        if self.con:
+            self.con.close()
 
     def ppush(self, data):
-        self.cur.execute(f"INSERT INTO fetched (data) VALUES (%s);", [data])
-        self.con.commit()
+        if self.con:
+            self.cur.execute(f"INSERT INTO fetched (data) VALUES (%s);", [data])
+            self.con.commit()
 
 
 driver2class = {

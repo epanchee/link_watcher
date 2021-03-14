@@ -1,6 +1,7 @@
-FROM python:3.9-slim
+FROM python:3.9
+WORKDIR /app
 RUN pip install pipenv
 COPY . /app
-WORKDIR /app
 RUN pipenv install --system --deploy
-ENTRYPOINT python run.py -c config/atomstroy.yaml -s stdout text telegram -i 10
+ENV PYTHONUNBUFFERED=1
+ENTRYPOINT ['python', 'run.py']
