@@ -1,4 +1,5 @@
 import logging
+import os
 from abc import abstractmethod, ABCMeta
 from time import sleep
 from typing import List
@@ -113,14 +114,14 @@ class PostgresSaveDriver(SaveDriver):
             self.con.commit()
             self.logger.info("Table created successfully")
         except Exception:
-            pass
+            self.con.rollback()
 
     def try_to_connect(self):
         con = None
         for _ in range(5):
             try:
                 con = psycopg2.connect(database="postgres", user="postgres", password="postgres",
-                                       host='docker_db' or "127.0.0.1", port="5432")
+                                       host=os.getenv('DB_ADDR', '127.0.0.1'), port="5432")
                 break
             except Exception as e:
                 self.logger.error(e)

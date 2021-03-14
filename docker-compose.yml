@@ -7,10 +7,14 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./postgresql_data:/var/lib/postgresql
   daemon:
     build: .
     entrypoint: ['python', 'run.py']
-    command: -c config/schema.yaml
+    command: -c config/schema.yaml -s stdout postgres -i 30
+    environment:
+      - DB_ADDR=docker_db
     volumes:
       - .:/code
     depends_on:
